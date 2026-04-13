@@ -53,6 +53,32 @@ symfony server:start
 ```
 ---
 
+## Implementació checkout Stripe (20€)
+
+Aquest repositori inclou ara un flux de pagament Stripe amb import fix de 20€ i correu d'agraïment post-pagament.
+
+### Variables d'entorn necessàries
+
+Definiu aquestes claus al vostre entorn de desenvolupament:
+
+```dotenv
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+### Rutes implementades
+
+- `GET /payment/checkout` — pàgina Symfony simple per inicialitzar i confirmar el pagament amb Stripe.js.
+- `POST /payment/intent` — crea un `PaymentIntent` de 20€ i guarda `customer_email` en metadata (llegit del claim JWT `email`).
+- `POST /payment/webhook` — processa `payment_intent.succeeded` i envia correu d'agraïment al client.
+
+Per provar localment els webhooks:
+
+```bash
+stripe listen --forward-to localhost:8000/payment/webhook
+```
+
 ## Stripe
 
 A la pràctica anterior vau crear una pantalla on es mostra la info de cada cotxe.
