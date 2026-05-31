@@ -105,4 +105,30 @@ class PaymentController extends AbstractController
 
         return new JsonResponse($data, 200);
     }
+
+    #[Route('/payment/refund', name: 'payment_refund', methods: ['POST'])]
+    public function refund(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data['payment_intent_id'])) {
+            return new JsonResponse(['error' => 'payment_intent_id is required'], 400);
+        }
+
+        try {
+            $refund = \Stripe\Refund::create([
+                'payment_intent' => $data['payment_intent_id'],
+            ]);
+
+            return new JsonResponse([
+                'refund_id' => $refund->id,
+                'status'    => $refund->status,
+                'amount'    => $refund->amount / 100,
+                'currency'  => $refund->currency,
+            ], 200);
+
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
+        }
+    }
 }
